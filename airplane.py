@@ -55,9 +55,13 @@ class Seat(object):
         elif self.row == other.row and self.seat > other.seat:
             return True
 
+    def __str__(self):
+        return f"Seat {self.row}{self.seat} ({self.type})"
+
 
 class Airplane(object):
-    def __init__(self, number_of_rows: int, seats_per_row: int) -> None:
+    def __init__(self, number_of_rows: int, seats_per_row: int,
+                 total_passengers: int = 0) -> None:
         """Airplane class that defines the seating arangement
 
         Args:
@@ -66,6 +70,9 @@ class Airplane(object):
         """
         self.number_of_rows = number_of_rows
         self.seats_per_row = seats_per_row
+        total_seats = number_of_rows * seats_per_row
+        self.total_passengers = total_seats if (total_passengers == 0) \
+                                                     else total_passengers
 
         self.seating_chart = self._generate_seating_chart()
 
@@ -76,6 +83,7 @@ class Airplane(object):
         Returns:
             tuple: (row, seat) for each seat on the plane
         """
+        
         for row in range(self.number_of_rows):
             for seat in list(range(self.seats_per_row)):
                 if seat in self.window_seats:
@@ -113,14 +121,13 @@ class Airplane(object):
         """
         return {self._aisle - 1, self._aisle}
 
-    @property
-    def fully_boarded(self) -> bool:
+    def fully_boarded(self, current_passengers) -> bool:
         """True if the plane is full
 
         Returns:
             bool
         """
-        return all([all(row) for row in self.seating_chart])
+        return current_passengers == self.total_passengers
 
     @property
     def _aisle(self) -> int:

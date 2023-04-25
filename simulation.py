@@ -44,6 +44,7 @@ class Simulation(object):
         """
         self.plane = airplane
         self.passengers_on_the_plane = []
+        self.seated_passengers = 0
         self.queue = queue_type(airplane)
 
         self.max_iter = max_iter
@@ -74,6 +75,7 @@ class Simulation(object):
                 self.seat_shuffles += min(
                     [1, self.plane.seat_passenger(passenger)])
                 self.passengers_seated_each_step[-1] += 1
+                self.seated_passengers += 1
 
         # board a new passenger until all are on the plane
         try:
@@ -98,7 +100,8 @@ class Simulation(object):
                         seated (also the number of seats)
                    }
         """
-        while not self.plane.fully_boarded and self.steps < self.max_iter:
+        
+        while not self.plane.fully_boarded(sum(self.passengers_seated_each_step)) and self.steps < self.max_iter:
             self.step()
 
         number_of_stops = sum([

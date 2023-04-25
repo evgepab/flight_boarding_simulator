@@ -231,6 +231,7 @@ class Steffen(PassengerQueue, GroupedBoarding):
             perfect (bool, optional): If True, perfect Steffen is used, else
                 modified Steffen. Defaults to False.
         """
+        self.plane = plane
         # sort passengers by window, middle, aisle
         PassengerQueue.__init__(self, plane)
 
@@ -250,19 +251,45 @@ class Steffen(PassengerQueue, GroupedBoarding):
 
     def group_passengers(self):
         if self.perfect:
-            groups = []
+            
+            """ groups = []
+            counter = 0
+            odd = (self.plane.number_of_rows - 1) % 2 == 1
+            iterations = 0
             # assign window seats
-            #for odd_even in [1, 0]:
-            for seat in chain(self._window_seats, self._middle_seats,
-                              self._aisle_seats):
+            for seat in chain(self._window_seats, self._window_seats,
+                                self._middle_seats, self._middle_seats,
+                                self._aisle_seats, self._aisle_seats):
                 group = []
                 for passenger in self.passengers:
-                    if passenger.seat == seat:
-                        group.append(passenger)
-                groups.append(group)
-            for group in groups:
-                group.sort(reverse=True)
+                    if counter < self.plane.total_passengers:
 
+                        if passenger.seat == seat and ((passenger.row % 2 == 1) == odd):
+                            group.append(passenger)
+                            counter+=1
+                groups.append(group)
+                iterations += 1
+                if iterations == 2:
+                    odd = not odd
+                    iterations = 0
+            for group in groups:
+                group.sort(reverse=True) """
+            odd = (self.plane.number_of_rows - 1) % 2 == 1
+            groups = [[[], [], [], [], [], []], [[], [], [], [], [], []]]
+            passengers = self.passengers[::-1]
+            for passenger in passengers:
+                seat = passenger.seat
+                row = passenger.row
+                groups[row % 2][seat].append(passenger)            
+            queue = groups[int(odd)][5] +  groups[int(odd)][0] + \
+                    groups[int(not odd)][5] + groups[int(not odd)][0] + \
+                    groups[int(odd)][4] + groups[int(odd)][1] + \
+                    groups[int(not odd)][4] + groups[int(not odd)][1] + \
+                    groups[int(odd)][3] + groups[int(odd)][2] + \
+                    groups[int(not odd)][3] + groups[int(not odd)][2] 
+            group = queue[:self.plane.total_passengers]
+            self.number_of_boarding_groups = 6
+            self.passengers = group
         else:
             seats = sorted(
                 set.union(self._window_seats, self._middle_seats,
@@ -281,5 +308,9 @@ class Steffen(PassengerQueue, GroupedBoarding):
                 for group in groups:
                     random.shuffle(group)
 
-        self.number_of_boarding_groups = len(groups)
-        self.passengers = list(chain(*groups))
+            self.number_of_boarding_groups = len(groups)
+            self.passengers = list(chain(*groups))
+
+        # prints queue
+        for passenger in self.passengers:
+            print(passenger)

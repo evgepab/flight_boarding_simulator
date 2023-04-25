@@ -54,3 +54,6 @@ class Passenger(object):
         except TypeError:
             # The passenger has not yet boarded. Skip.
             pass
+
+    def __str__(self):
+        return f"Passenger seated in {str(self._seat)}"
